@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Complete the Team Health Assessment and receive immediate feedback about your team's current conditions.">
+  <title>Team Health Assessment | Building Better Organizations</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .assessment-shell { max-width: 900px; margin: 0 auto; }
+    .progress-wrap { background: #e7efe9; border-radius: 999px; height: 9px; overflow: hidden; margin: 12px 0 24px; }
+    .progress-bar { height: 100%; width: 0; background: #367565; transition: width .2s ease; }
+    .assessment-section { border: 1px solid var(--line); border-radius: 15px; background: #fff; padding: 22px; margin: 18px 0; }
+    .question { padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .question:last-child { border-bottom: 0; }
+    .question legend { font-weight: 650; margin-bottom: 12px; }
+    .likert { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .likert label { border: 1px solid var(--line); border-radius: 10px; padding: 10px 6px; text-align: center; font-size: .88rem; cursor: pointer; }
+    .likert input { display: block; margin: 0 auto 5px; accent-color: var(--accent); }
+    .likert label:has(input:checked) { border-color: var(--accent); background: var(--sage); }
+    .field { display: grid; gap: 6px; margin: 14px 0; }
+    .field label { font-weight: 650; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid #bdcbc3; border-radius: 8px; background: white; color: var(--ink); font: inherit; }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .scale-key { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: .88rem; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
+    button.btn { border: 0; cursor: pointer; font: inherit; }
+    .error { color: #8d2727; font-weight: 650; margin: 12px 0; }
+    .result-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+    .score-card { border: 1px solid var(--line); background: white; border-radius: 12px; padding: 16px; }
+    .score-head { display: flex; justify-content: space-between; gap: 10px; font-weight: 700; }
+    .score-track { height: 8px; background: #e7efe9; border-radius: 999px; overflow: hidden; margin: 12px 0 8px; }
+    .score-fill { height: 100%; background: #367565; }
+    .score-label { color: var(--muted); font-size: .9rem; }
+    .result-overall { background: var(--forest); color: white; border-radius: 15px; padding: 22px; margin: 18px 0; }
+    .result-overall .score-big { font-size: 2.7rem; line-height: 1.1; font-weight: 800; letter-spacing: -.04em; }
+    .result-overall p { color: #e1eee8; }
+    .result-note { background: var(--sage); border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .hidden { display: none !important; }
+    .privacy { font-size: .9rem; color: var(--muted); }
+    @media(max-width:650px) {
+      .assessment-section { padding: 16px; }
+      .likert { gap: 4px; }
+      .likert label { padding: 9px 2px; font-size: .78rem; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="../index.html">Building Better Organizations</a>
+      <nav aria-label="Main navigation">
+        <a href="../index.html">Home</a>
+        <a href="team-health-assessment.html" aria-current="page">Team Health</a>
+        <a href="olia.html">OLIA</a>
+        <a href="observation-journal.html">Observation Journal</a>
+        <a href="writing-and-observations.html">Writing &amp; Observations</a>
+        <a href="connect.html">Connect</a>
+      </nav>
+    </div>
+    <section class="hero">
+      <div class="eyebrow">Tools &amp; Resources</div>
+      <h1>Team Health Assessment</h1>
+      <p>Reflect on the conditions that help your team coordinate, learn, adapt, and perform. You’ll see your results immediately after submitting the assessment.</p>
+    </section>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="assessment-shell">
+    <section id="intro" class="section-intro">
+      <h2>About this assessment</h2>
+      <p>Rate each statement based on your current experience. This is a reflection and learning tool—not a validated clinical or employment test. Scores are intended to support thoughtful discussion, not to label individuals or teams.</p>
+      <div class="scale-key">
+        <span><strong>1</strong> = Strongly disagree</span>
+        <span><strong>2</strong> = Disagree</span>
+        <span><strong>3</strong> = Neutral / unsure</span>
+        <span><strong>4</strong> = Agree</span>
+        <span><strong>5</strong> = Strongly agree</span>
+      </div>
+      <p class="privacy">Avoid including names or confidential personnel details in open-ended responses. Your results are calculated in your browser. If Formspree is configured, the submitted answers are also sent to the assessment owner.</p>
+    </section>
+
+    <form id="assessmentForm">
+      <div class="progress-wrap" aria-label="Assessment completion progress"><div id="progressBar" class="progress-bar"></div></div>
+      <p id="progressText" class="small-note">0 of 25 rating questions answered</p>
+
+      <section class="assessment-section">
+        <h2>About your team</h2>
+        <div class="field">
+          <label for="roleLevel">What is your role level? (optional)</label>
+          <select id="roleLevel" name="role_level">
+            <option value="">Prefer not to say</option>
+            <option>Individual contributor / team member</option>
+            <option>Team lead / supervisor</option>
+            <option>Manager / middle leader</option>
+            <option>Senior leader / executive</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="teamName">What team are you a part of? (optional)</label>
+          <input id="teamName" name="team" type="text" maxlength="120" placeholder="You may leave this blank">
+        </div>
+        <div class="field">
+          <label for="roleTenure">How long have you been in your current role? (optional)</label>
+          <select id="roleTenure" name="role_tenure">
+            <option value="">Prefer not to say</option>
+            <option>Less than 6 months</option>
+            <option>6–12 months</option>
+            <option>1–3 years</option>
+            <option>More than 3 years</option>
+          </select>
+        </div>
+      </section>
+
+      <div id="questions"></div>
+
+      <section class="assessment-section">
+        <h2>Reflection questions</h2>
+        <p class="muted">These prompts help add context to the ratings. Keep responses general and avoid names or confidential details.</p>
+        <div class="field">
+          <label for="strength">What most helps your team perform at its best?</label>
+          <textarea id="strength" name="reflection_strength" maxlength="2000"></textarea>
+        </div>
+        <div class="field">
+          <label for="barrier">What most gets in the way of your team’s effectiveness?</label>
+          <textarea id="barrier" name="reflection_barrier" maxlength="2000"></textarea>
+        </div>
+        <div class="field">
+          <label for="leadershipImprove">What is one thing leadership could improve?</label>
+          <textarea id="leadershipImprove" name="reflection_leadership" maxlength="2000"></textarea>
+        </div>
+      </section>
+
+      <p id="formError" class="error" role="alert"></p>
+      <div class="actions">
+        <button type="submit" class="btn">Submit and view my results</button>
+        <button type="button" id="clearBtn" class="btn secondary">Clear responses</button>
+      </div>
+      <p class="privacy">Submitting is optional until you choose to send your responses. Your scores will be displayed immediately. If Formspree has not yet been configured, the results will still display, but the responses will not be transmitted or stored.</p>
+    </form>
+
+    <section id="results" class="hidden" aria-live="polite">
+      <div class="result-overall">
+        <div class="eyebrow">Your results</div>
+        <h2 style="color:white;margin:8px 0">Overall Team Health Score</h2>
+        <div id="overallScore" class="score-big">—</div>
+        <p id="overallInterpretation"></p>
+      </div>
+      <h2>Domain results</h2>
+      <p class="muted">Each domain score is the average of its five items. Scores range from 1 to 5.</p>
+      <div id="domainResults" class="result-grid"></div>
+      <div class="result-note">
+        <h3>How to use these results</h3>
+        <p>Look for patterns rather than treating a score as a verdict. Higher scores may point to conditions worth protecting and learning from; lower scores may identify areas for a team conversation. Consider the context behind each rating and compare perspectives respectfully.</p>
+      </div>
+      <div id="diagnosticResults"></div>
+      <h2>Reflection responses</h2>
+      <div id="reflectionResults"></div>
+      <div class="actions">
+        <button type="button" id="printBtn" class="btn">Print / save results</button>
+        <button type="button" id="editBtn" class="btn secondary">Return to responses</button>
+      </div>
+      <p id="submissionStatus" class="small-note"></p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <span>Building Better Organizations</span>
+    <span><a href="https://substack.com/@buildingbetterorganizations" target="_blank" rel="noopener noreferrer">Substack</a> · <a href="https://www.linkedin.com/in/chris-clause-phd-4a120318" target="_blank" rel="noopener noreferrer">LinkedIn</a></span>
+  </div>
+</footer>
+
+<script>
+/*
+  SETUP REQUIRED:
+  1. Create a dedicated Formspree form for Team Health Assessment submissions.
+  2. Replace YOUR_FORMSPREE_ID below with that form's ID.
+  3. Test a submission before sharing the assessment publicly.
+*/
+const FORMSPREE_ID = "YOUR_FORMSPREE_ID";
+const domains = [
+  { name: "Clarity", questions: [
+    "I understand our team’s purpose and how it connects to the broader mission.",
+    "Our priorities are clear and consistently communicated.",
+    "I understand what success looks like in my role.",
+    "Our stated priorities remain stable even during change.",
+    "There is alignment between what we say is important and where we focus."
+  ]},
+  { name: "Performance", questions: [
+    "Our team consistently follows through on commitments.",
+    "We track progress against goals in a meaningful way.",
+    "We have the resources needed to meet expectations.",
+    "Workloads are manageable and sustainable.",
+    "Our team operates with a clear and consistent execution rhythm."
+  ]},
+  { name: "Adaptability", questions: [
+    "We identify problems quickly.",
+    "We adjust course when something isn’t working.",
+    "We actively seek out better ways of doing things.",
+    "We learn from mistakes and apply those lessons.",
+    "New ideas are encouraged and tested."
+  ]},
+  { name: "Resilience", questions: [
+    "Our team maintains effectiveness during periods of stress.",
+    "Resources shift quickly to meet changing priorities.",
+    "We collaborate effectively across teams when needed.",
+    "Setbacks do not derail our long-term progress.",
+    "We recover quickly from disruptions."
+  ]},
+  { name: "Leadership", questions: [
+    "Leaders set clear expectations and high standards.",
+    "People feel safe to speak up about concerns.",
+    "Concerns and ideas are raised and heard quickly.",
+    "Leaders actively develop people on the team.",
+    "Leaders model the behaviors they expect from others."
+  ]}
+];
+const diagnosticDrivers = [
+  {name:"Clarity", items:[0,1,2,4]},
+  {name:"Intent Stability", items:[3]},
+  {name:"Capacity", items:[7,8]},
+  {name:"Cadence", items:[5,6,9]},
+  {name:"Correction", items:[10,11]},
+  {name:"Learning Speed", items:[12,13,14]},
+  {name:"Resource Fluidity", items:[15,16,18,19]},
+  {name:"Coordination Agility", items:[17]},
+  {name:"Climate", items:[20,21,23,24]},
+  {name:"Voice Velocity", items:[22]}
+];
+const questionRoot = document.getElementById("questions");
+let flatQuestions = [];
+domains.forEach((domain, di) => {
+  const section = document.createElement("section");
+  section.className = "assessment-section";
+  section.innerHTML = `<h2>${di+1}. ${domain.name}</h2><p class="muted">Rate each statement from 1 (strongly disagree) to 5 (strongly agree).</p>`;
+  domain.questions.forEach((question, qi) => {
+    const index = di * 5 + qi;
+    flatQuestions.push(question);
+    const fieldset = document.createElement("fieldset");
+    fieldset.className = "question";
+    fieldset.innerHTML = `<legend>${index+1}. ${question}</legend><div class="likert" role="radiogroup" aria-label="${question.replaceAll('"','&quot;')}">
+      ${[1,2,3,4,5].map(n => `<label><input type="radio" name="q${index+1}" value="${n}" required><strong>${n}</strong><span>${["Strongly disagree","Disagree","Neutral / unsure","Agree","Strongly agree"][n-1]}</span></label>`).join("")}
+    </div>`;
+    section.appendChild(fieldset);
+  });
+  questionRoot.appendChild(section);
+});
+const form = document.getElementById("assessmentForm");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+function answeredCount() {
+  return flatQuestions.filter((_, i) => form.querySelector(`input[name="q${i+1}"]:checked`)).length;
+}
+function updateProgress() {
+  const count = answeredCount();
+  progressBar.style.width = `${count / flatQuestions.length * 100}%`;
+  progressText.textContent = `${count} of ${flatQuestions.length} rating questions answered`;
+}
+form.addEventListener("change", updateProgress);
+function selectedScores() {
+  return flatQuestions.map((_, i) => {
+    const selected = form.querySelector(`input[name="q${i+1}"]:checked`);
+    return selected ? Number(selected.value) : null;
+  });
+}
+function mean(values) { return values.reduce((a,b) => a+b, 0) / values.length; }
+function interpretation(score) {
+  if (score >= 4.2) return {label:"Relative strength", text:"Responses suggest this may be a strength to understand, protect, and learn from."};
+  if (score >= 3.5) return {label:"Generally stable", text:"Responses suggest a generally stable condition, with room to explore differences or improve consistency."};
+  return {label:"Opportunity for attention", text:"Responses suggest this area may benefit from a closer look and a constructive team conversation."};
+}
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function showResults(scores) {
+  const domainScores = domains.map((d, i) => ({name:d.name, score:mean(scores.slice(i*5,i*5+5))}));
+  const overall = mean(domainScores.map(d => d.score));
+  document.getElementById("overallScore").textContent = `${overall.toFixed(2)} / 5`;
+  document.getElementById("overallInterpretation").textContent = interpretation(overall).text;
+  document.getElementById("domainResults").innerHTML = domainScores.map(d => {
+    const interp = interpretation(d.score);
+    return `<div class="score-card"><div class="score-head"><span>${d.name}</span><span>${d.score.toFixed(2)} / 5</span></div><div class="score-track"><div class="score-fill" style="width:${d.score/5*100}%"></div></div><div class="score-label"><strong>${interp.label}</strong><br>${interp.text}</div></div>`;
+  }).join("");
+  const driverScores = diagnosticDrivers.map(d => ({name:d.name, score:mean(d.items.map(i => scores[i]))}));
+  document.getElementById("diagnosticResults").innerHTML = `<h2 style="margin-top:28px">Diagnostic drivers</h2><p class="muted">These exploratory drivers combine selected items from the spreadsheet's Diagnostic Engine. Use them as prompts for discussion, not as validated measures.</p><div class="result-grid">${driverScores.map(d => `<div class="score-card"><div class="score-head"><span>${d.name}</span><span>${d.score.toFixed(2)}</span></div><div class="score-track"><div class="score-fill" style="width:${d.score/5*100}%"></div></div><div class="score-label">${interpretation(d.score).label}</div></div>`).join("")}</div>`;
+  const reflections = [
+    ["What most helps your team perform at its best?", document.getElementById("strength").value],
+    ["What most gets in the way of your team’s effectiveness?", document.getElementById("barrier").value],
+    ["What is one thing leadership could improve?", document.getElementById("leadershipImprove").value]
+  ];
+  document.getElementById("reflectionResults").innerHTML = reflections.map(([q,a]) => `<div class="result-note"><strong>${escapeHtml(q)}</strong><p>${a.trim() ? escapeHtml(a).replace(/\n/g,"<br>") : "<span class='muted'>No response provided.</span>"}</p></div>`).join("");
+  document.getElementById("results").classList.remove("hidden");
+  form.classList.add("hidden");
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+  return {domainScores, overall, driverScores};
+}
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  document.getElementById("formError").textContent = "";
+  if (!form.reportValidity()) return;
+  const scores = selectedScores();
+  if (scores.some(s => s === null)) {
+    document.getElementById("formError").textContent = "Please answer all 25 rating questions before viewing your results.";
+    return;
+  }
+  const results = showResults(scores);
+  const payload = new FormData(form);
+  payload.append("assessment_version", "BBO Team Health Assessment V2.0 web draft");
+  payload.append("overall_score", results.overall.toFixed(2));
+  results.domainScores.forEach(d => payload.append(`score_${d.name.toLowerCase()}`, d.score.toFixed(2)));
+  results.driverScores.forEach(d => payload.append(`driver_${d.name.toLowerCase().replaceAll(" ","_")}`, d.score.toFixed(2)));
+  payload.append("score_interpretation", interpretation(results.overall).label);
+  const status = document.getElementById("submissionStatus");
+  if (!FORMSPREE_ID || FORMSPREE_ID === "YOUR_FORMSPREE_ID") {
+    status.textContent = "Your results are ready. Formspree is not configured yet, so your responses have not been sent or stored.";
+    return;
+  }
+  status.textContent = "Submitting responses securely…";
+  try {
+    const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method:"POST", body:payload, headers:{"Accept":"application/json"}
+    });
+    if (!response.ok) throw new Error("Submission was not accepted");
+    status.textContent = "Your responses were submitted. Your results are displayed above.";
+  } catch (error) {
+    status.textContent = "Your results are displayed above, but we couldn't confirm submission. Please save or print your results and try again later.";
+  }
+});
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (confirm("Clear all answers entered on this page?")) {
+    form.reset(); updateProgress(); document.getElementById("formError").textContent = "";
+  }
+});
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("editBtn").addEventListener("click", () => {
+  document.getElementById("results").classList.add("hidden");
+  form.classList.remove("hidden"); document.getElementById("intro").classList.remove("hidden");
+  form.scrollIntoView({behavior:"smooth",block:"start"});
+});
+</script>
+</body>
+</html>
